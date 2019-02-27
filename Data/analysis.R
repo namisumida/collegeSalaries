@@ -28,3 +28,21 @@ summary(collegeregions)
 # Merge types and regions
 colleges <- merge(collegetypes2, collegeregions[c('school', 'school_region')], by="school", all.x=TRUE)
 summary(colleges)
+
+# Remove dollar signs and turn into ints
+for (i in 2:7) {
+  colleges[,i] <- as.numeric(gsub("\\$|,", "", colleges[,i]))
+}
+
+# Analysis of colleges
+types <- c("type_ivy", "type_state", "type_libarts", "type_engineering", "type_party")
+for (type in types) {
+  tapply(colleges$starting_median, colleges$type, mean)
+  tapply(colleges$mid_10, type, mean)
+  tapply(colleges$mid_25, type, mean)
+  tapply(colleges$mid_median, type, mean)
+  tapply(colleges$mid_75, type, mean)
+  tapply(colleges$mid_90, type, mean)
+}
+
+
