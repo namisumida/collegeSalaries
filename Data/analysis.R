@@ -33,16 +33,57 @@ summary(colleges)
 for (i in 2:7) {
   colleges[,i] <- as.numeric(gsub("\\$|,", "", colleges[,i]))
 }
-
-# Analysis of colleges
-types <- c("type_ivy", "type_state", "type_libarts", "type_engineering", "type_party")
-for (type in types) {
-  tapply(colleges$starting_median, colleges$type, mean)
-  tapply(colleges$mid_10, type, mean)
-  tapply(colleges$mid_25, type, mean)
-  tapply(colleges$mid_median, type, mean)
-  tapply(colleges$mid_75, type, mean)
-  tapply(colleges$mid_90, type, mean)
+for (i in c(2,3,5,6,7,8)) {
+  degrees[,i] <- as.numeric(gsub("\\$|,", "", degrees[,i]))
 }
 
-
+# Analysis of colleges
+# Type
+output <- list()
+type_colindex <- c(8,9,10,11,12) # engineering, ivy, liberal alrts, party, state
+for (type in type_colindex) {
+  sub <- subset(colleges, colleges[,type]==1)
+  name <- ifelse(type==8, "engineering", ifelse(type==9, "ivy", ifelse(type==10, "liberal arts", ifelse(type==11, "party", "state"))))
+  output_list <- c(name, 
+                   nrow(sub),
+                   mean(sub$starting_median, na.rm=TRUE), 
+                   mean(sub$mid_10, na.rm=TRUE), 
+                   mean(sub$mid_25, na.rm=TRUE),
+                   mean(sub$mid_median, na.rm=TRUE),
+                   mean(sub$mid_75, na.rm=TRUE),
+                   mean(sub$mid_90, na.rm=TRUE))
+  output <- rbind(output, output_list)
+}
+# Region
+colleges$school_region <- as.character(colleges$school_region)
+for (region in unique(colleges$school_region)) {
+  sub <- subset(colleges, colleges$school_region==region)
+  name <- region
+  output_list <- c(name, 
+                   nrow(sub),
+                   mean(sub$starting_median, na.rm=TRUE), 
+                   mean(sub$mid_10, na.rm=TRUE), 
+                   mean(sub$mid_25, na.rm=TRUE),
+                   mean(sub$mid_median, na.rm=TRUE),
+                   mean(sub$mid_75, na.rm=TRUE),
+                   mean(sub$mid_90, na.rm=TRUE))
+  output <- rbind(output, output_list)
+}
+# Region AND type
+for (type in type_colindex) {
+  type_sub <- subset(colleges, colleges[,type]==1)
+  type_name <- ifelse(type==8, "engineering", ifelse(type==9, "ivy", ifelse(type==10, "liberal arts", ifelse(type==11, "party", "state"))))
+  for (region in unique(colleges$school_region)) {
+    sub <- subset(type_sub, type_sub$school_region==region)
+    region_name <- region
+    output_list <- c(paste(type_name, region_name, sep="_"), 
+                     nrow(sub),
+                     mean(sub$starting_median, na.rm=TRUE), 
+                     mean(sub$mid_10, na.rm=TRUE), 
+                     mean(sub$mid_25, na.rm=TRUE),
+                     mean(sub$mid_median, na.rm=TRUE),
+                     mean(sub$mid_75, na.rm=TRUE),
+                     mean(sub$mid_90, na.rm=TRUE))
+    output <- rbind(output, output_list)
+  }
+}
